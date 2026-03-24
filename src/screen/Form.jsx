@@ -10,6 +10,12 @@ import Footer from "../sections/Footer";
 import Optional from "../sections/Optional";
 import SuccessScreen from "../sections/SuccessScreen";
 import { useState } from "react";
+import { supabase } from "../lib/supabase";
+
+/* TODO:
+  fix the link submit new response
+*/
+
 
 import { useForm } from "../context/FormContext";
 
@@ -21,42 +27,43 @@ const Form = () => {
   const handelSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      // ── Upload photo to Supabase Storage (if provided) ──
+      // Step 1 — photo upload
       let photoUrl = null;
       if (formData.photo) {
-        // TODO: wire up supabase storage upload
-        // const { data, error } = await supabase.storage
-        //   .from("review-photos")
-        //   .upload(`${Date.now()}-${formData.photo.name}`, formData.photo);
-        // photoUrl = data?.path ?? null;
+        const { data, error: uploadError } = await supabase.storage
+          .from("review-photos")
+          .upload(`${Date.now()}-${formData.photo.name}`, formData.photo);
+
+        if (uploadError) throw uploadError;
+        photoUrl = data?.path ?? null;
       }
 
-      // ── Insert review row into Supabase ──
-      // TODO: wire up supabase insert
-      // const { error } = await supabase.from("reviews").insert([{
-      //   perfume_name:  formData.selectedPerfume?.name,
-      //   perfume_type:  formData.selectedPerfume?.type,
-      //   overall:       formData.overallRating,
-      //   sillage:       formData.sillage,
-      //   longevity:     formData.longevity,
-      //   value:         formData.value,
-      //   packaging:     formData.packaging,
-      //   note_tags:     formData.noteTags,
-      //   recommend:     formData.recommend,
-      //   review_text:   formData.reviewText,
-      //   name:          formData.name,
-      //   email:         formData.email,
-      //   phone:         formData.phone,
-      //   city:          formData.city,
-      //   photo_url:     photoUrl,
-      //   instagram:     formData.instagram,
-      //   facebook:      formData.facebook,
-      //   twitter:       formData.twitter,
-      // }]);
+      // Step 2 — insert row
+      const { error: insertError } = await supabase.from("reviews").insert([
+        {
+          perfume_name: formData.selectedPerfume?.name,
+          perfume_type: formData.selectedPerfume?.type,
+          overall: formData.overallRating,
+          sillage: formData.sillage,
+          longevity: formData.longevity,
+          value: formData.value,
+          packaging: formData.packaging,
+          note_tags: formData.noteTags,
+          recommend: formData.recommend,
+          review_text: formData.reviewText,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          city: formData.city,
+          photo_url: photoUrl,
+          instagram: formData.instagram,
+          facebook: formData.facebook,
+        },
+      ]);
 
-      // Simulate network delay while Supabase is not wired up
-      await new Promise((r) => setTimeout(r, 1000));
+      if (insertError) throw insertError;
 
       setSuccess(true);
     } catch (err) {
