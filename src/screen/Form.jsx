@@ -16,7 +16,6 @@ import { supabase } from "../lib/supabase";
   fix the link submit new response
 */
 
-
 import { useForm } from "../context/FormContext";
 
 const Form = () => {
@@ -29,18 +28,32 @@ const Form = () => {
     setLoading(true);
 
     try {
-      // Step 1 — photo upload
+      // Step A — photo upload
       let photoUrl = null;
       if (formData.photo) {
         const { data, error: uploadError } = await supabase.storage
           .from("review-photos")
           .upload(`${Date.now()}-${formData.photo.name}`, formData.photo);
-
         if (uploadError) throw uploadError;
         photoUrl = data?.path ?? null;
       }
 
-      // Step 2 — insert row
+      // Step B — send coupon email and get coupon code back
+      let couponCode = null;
+      if (formData.email) {
+        const { data: fnData, error: fnError } =
+          await supabase.functions.invoke("send-coupon", {
+            body: {
+              email: formData.email,
+              name: formData.name,
+              perfumeName: formData.selectedPerfume?.name,
+            },
+          });
+        if (fnError) throw fnError;
+        couponCode = fnData?.coupon ?? null;
+      }
+
+      // Step C — insert row with coupon code
       const { error: insertError } = await supabase.from("reviews").insert([
         {
           perfume_name: formData.selectedPerfume?.name,
@@ -60,6 +73,7 @@ const Form = () => {
           photo_url: photoUrl,
           instagram: formData.instagram,
           facebook: formData.facebook,
+          coupon_code: couponCode,
         },
       ]);
 
