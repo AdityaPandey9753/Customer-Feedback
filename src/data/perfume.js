@@ -38,25 +38,25 @@ export const perfumes = [
   {
     id: 7,
     name: "Wish Me",
-    type: "Unisex",
+    type: "Eau de Parfum",
     notes: ["Citrus", "Rose", "Vanilla", "Fresh Spicy", "Woody", "Musk", "Powdery"],
   },
   {
     id: 8,
     name: "Gardenia",
-    type: "Unisex",
+    type: "Eau de Parfum",
     notes: ["Vanilla", "Coffee", "White Floral", "Warm Spicy", "Woody", "Balsamic", "Powdery"],
   },
   {
     id: 9,
     name: "Men in Black",
-    type: "For Men",
+    type: "Eau de Parfum",
     notes: ["Citrus", "Anise", "Tobacco", "Aromatic", "Leather", "Vanilla"],
   },
   {
     id: 10,
     name: "Floral Mist",
-    type: "For Women",
+    type: "Eau de Parfum",
     notes: ["Rose", "Citrus", "Floral", "Patchouli", "Warm Spicy", "Woody", "Earthy"],
   },
 ];
