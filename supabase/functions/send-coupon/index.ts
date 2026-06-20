@@ -5,23 +5,27 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const allowedOrigins = [
   "http://localhost:5173",
   "https://customer-feedback-xi-nine.vercel.app",
+  "https://feedback.theparadiseperfume.com",
 ];
 
 const coupons = ["FLAT200", "GETMORE", "SURPRISE75"];
 
 const couponDetails = {
-  "FLAT200":    "₹200 off on orders above ₹1000",
-  "GETMORE":    "2 free surprise fragrance testers worth ₹100",
-  "SURPRISE75": "₹75 off + a free surprise fragrance tester",
+  FLAT200: "₹200 off on orders above ₹1000",
+  GETMORE: "2 free surprise fragrance testers worth ₹100",
+  SURPRISE75: "₹75 off + a free surprise fragrance tester",
 };
 
 serve(async (req) => {
   const origin = req.headers.get("Origin") ?? "";
-  const allowedOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  const allowedOrigin = allowedOrigins.includes(origin)
+    ? origin
+    : allowedOrigins[0];
 
   const corsHeaders = {
-    "Access-Control-Allow-Origin":  allowedOrigin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type",
   };
 
   if (req.method === "OPTIONS") {
@@ -37,14 +41,14 @@ serve(async (req) => {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        "Content-Type":  "application/json",
-        "Authorization": `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from:     "The Perfume Paradise <support@theparadiseperfume.com>",
+        from: "The Perfume Paradise <support@theparadiseperfume.com>",
         reply_to: "support@theparadiseperfume.com",
-        to:       [email],
-        subject:  "Thank you for your review — here's your gift 🌸",
+        to: [email],
+        subject: "Thank you for your review — here's your gift 🌸",
         html: `
           <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:40px 24px;color:#3d2b1f;">
             <p style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#a08070;">
@@ -88,16 +92,14 @@ serve(async (req) => {
       throw new Error(data?.message ?? "Email send failed");
     }
 
-    return new Response(
-      JSON.stringify({ coupon }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-
+    return new Response(JSON.stringify({ coupon }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (err) {
     console.error("Function error:", err);
-    return new Response(
-      JSON.stringify({ error: err.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
